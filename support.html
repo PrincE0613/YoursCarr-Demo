@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YoursCarr Support Dashboard Demo</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --primary:#0f766e;
+      --primary-dark:#115e59;
+      --soft:#f8fafc;
+      --green:#16a34a;
+      --red:#dc2626;
+      --orange:#f59e0b;
+      --blue:#2563eb;
+      --purple:#7c3aed;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:#122033;
+      color:#fff;
+      padding:22px 16px;
+    }
+
+    .brand{
+      font-size:24px;
+      font-weight:700;
+      margin-bottom:24px;
+      color:#dff8f6;
+    }
+
+    .nav-item{
+      padding:12px 14px;
+      border-radius:10px;
+      margin-bottom:8px;
+      cursor:pointer;
+      background:transparent;
+      transition:.2s;
+    }
+
+    .nav-item:hover,
+    .nav-item.active{
+      background:rgba(20,184,166,.18);
+    }
+
+    .main{
+      padding:20px;
+      overflow:auto;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:18px;
+    }
+
+    .title h1{
+      margin:0;
+      font-size:28px;
+      color:var(--primary);
+    }
+
+    .title p{
+      margin:4px 0 0;
+      color:var(--muted);
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .input, select, button, textarea{
+      font:inherit;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      outline:none;
+    }
+
+    .input, select{
+      min-width:180px;
+    }
+
+    button{
+      cursor:pointer;
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      transition:.2s;
+      font-weight:600;
+    }
+
+    button:hover{
+      background:var(--primary-dark);
+    }
+
+    .btn-secondary{
+      background:var(--purple);
+    }
+
+    .btn-secondary:hover{
+      background:#6d28d9;
+    }
+
+    .btn-danger{
+      background:var(--red);
+    }
+
+    .btn-danger:hover{
+      background:#b91c1c;
+    }
+
+    .grid-cards{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 6px 16px rgba(15,23,42,.04);
+    }
+
+    .stat-label{
+      color:var(--muted);
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .stat-value{
+      font-size:30px;
+      font-weight:700;
+      margin-top:8px;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:16px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .ticket-layout{
+      display:grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    .table-wrap,
+    .panel{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+    }
+
+    .section-head{
+      padding:16px 18px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-size:18px;
+    }
+
+    .section-head small{
+      color:var(--muted);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:12px 14px;
+      border-bottom:1px solid #eef2f7;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      background:var(--soft);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:#4b5563;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+
+    tr:hover{
+      background:#f8fbff;
+      cursor:pointer;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      color:#fff;
+      margin-right:6px;
+      margin-bottom:4px;
+    }
+
+    .b-new{ background:var(--blue); }
+    .b-open{ background:var(--purple); }
+    .b-progress{ background:var(--orange); }
+    .b-resolved{ background:var(--green); }
+    .b-closed{ background:#6b7280; }
+
+    .type-user{ color:var(--primary); font-weight:700; }
+    .type-vendor{ color:var(--purple); font-weight:700; }
+
+    .panel-body{
+      padding:16px 18px;
+    }
+
+    .detail-row{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap:10px;
+      padding:10px 0;
+      border-bottom:1px solid #eef2f7;
+    }
+
+    .detail-row:last-child{
+      border-bottom:none;
+    }
+
+    .label{
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    .value{
+      font-weight:600;
+      word-break:break-word;
+    }
+
+    .value a{
+      color:var(--blue);
+      text-decoration:none;
+    }
+
+    .value a:hover{
+      text-decoration:underline;
+    }
+
+    .chat-box{
+      margin-top:14px;
+      border-top:1px solid var(--border);
+      padding-top:14px;
+    }
+
+    .messages{
+      height:280px;
+      overflow:auto;
+      background:#f9fbfd;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:10px;
+    }
+
+    .msg{
+      margin-bottom:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      max-width:90%;
+    }
+
+    .msg.agent{
+      background:#dff7f3;
+      margin-left:auto;
+      border:1px solid #c8e6d9;
+    }
+
+    .msg.user{
+      background:#eef2ff;
+      border:1px solid #dbeafe;
+    }
+
+    .msg-meta{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+
+    .msg-question{
+      font-weight:600;
+      color:var(--primary);
+    }
+
+    .msg-option{
+      display:inline-block;
+      padding:6px 12px;
+      margin:6px 4px 4px 0;
+      background:#f0f9ff;
+      border:1px solid #bae6fd;
+      border-radius:8px;
+      font-size:12px;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .msg-option:hover{
+      background:#e0f2fe;
+      border-color:#2563eb;
+    }
+
+    .reply-box{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .reply-box textarea{
+      flex:1;
+      min-height:48px;
+      resize:vertical;
+    }
+
+    .action-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .helper{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:8px;
+    }
+
+    .chat-intro{
+      background:#f0fdf4;
+      border:1px solid #bbf7d0;
+      border-radius:8px;
+      padding:10px 12px;
+      margin-bottom:12px;
+      font-size:12px;
+      color:#166534;
+    }
+
+    @media (max-width: 1100px){
+      .layout{ grid-template-columns:1fr; }
+      .sidebar{ display:none; }
+      .ticket-layout{ grid-template-columns:1fr; }
+      .grid-cards{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (max-width: 700px){
+      .grid-cards{ grid-template-columns:1fr; }
+      .topbar, .toolbar{ flex-direction:column; align-items:stretch; }
+      .controls{ width:100%; }
+      .input, select{ width:100%; min-width:unset; }
+      .detail-row{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">YoursCarr</div>
+      <div class="nav-item active" onclick="switchDashboard('user')">User Ticket Dashboard</div>
+      <div class="nav-item" onclick="switchDashboard('vendor')">Vendor Ticket Dashboard</div>
+      <div class="nav-item">Bookings</div>
+      <div class="nav-item">Support Chat</div>
+      <div class="nav-item">Call Support</div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>Support Ticket Dashboard</h1>
+          <p>Fast support workflow with booking-linked tickets and BigBasket-style hierarchical chat.</p>
+        </div>
+        <div class="controls">
+          <input class="input" type="text" id="searchBox" placeholder="Search ticket, booking, name..." oninput="renderTable()" />
+          <select id="filterStatus" onchange="renderTable()">
+            <option value="">All Status</option>
+            <option>New</option>
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Waiting for User</option>
+            <option>Waiting for Vendor</option>
+            <option>Resolved</option>
+            <option>Closed</option>
+          </select>
+          <button onclick="addDemoTicket()">Add Demo Ticket</button>
+        </div>
+      </div>
+
+      <div class="grid-cards">
+        <div class="card"><div class="stat-label">Total Tickets</div><div class="stat-value" id="totalTickets">0</div></div>
+        <div class="card"><div class="stat-label">New Tickets</div><div class="stat-value" id="newTickets">0</div></div>
+        <div class="card"><div class="stat-label">In Progress</div><div class="stat-value" id="progressTickets">0</div></div>
+        <div class="card"><div class="stat-label">Resolved</div><div class="stat-value" id="resolvedTickets">0</div></div>
+      </div>
+
+      <div class="toolbar">
+        <div>
+          <strong id="dashboardName">User Ticket Dashboard</strong>
+          <div class="helper">Select a ticket to see booking data, summary, hierarchical chat, and action buttons.</div>
+        </div>
+        <div class="controls">
+          <select id="issueTypeFilter" onchange="renderTable()">
+            <option value="">All Issue Types</option>
+            <option>Current booking issue</option>
+            <option>Payment issue</option>
+            <option>Refund issue</option>
+            <option>Vendor issue</option>
+            <option>App issue</option>
+            <option>General issue</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ticket-layout">
+        <section class="table-wrap">
+          <div class="section-head">
+            <div>
+              <h2>Ticket List</h2>
+              <small>Click any row to open details</small>
+            </div>
+          </div>
+          <div style="max-height:560px; overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticket ID</th>
+                  <th>Raised By</th>
+                  <th>Booking ID</th>
+                  <th>Issue Summary</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                </tr>
+              </thead>
+              <tbody id="ticketBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <div class="section-head">
+            <div>
+              <h2>Ticket Details</h2>
+              <small id="detailSubtitle">Select a ticket</small>
+            </div>
+          </div>
+          <div class="panel-body" id="detailPanel">
+            <div class="detail-row"><div class="label">Ticket ID</div><div class="value" id="dTicket">-</div></div>
+            <div class="detail-row"><div class="label">Raised By</div><div class="value" id="dRaisedBy">-</div></div>
+            <div class="detail-row"><div class="label">Booking ID</div><div class="value" id="dBooking">-</div></div>
+            <div class="detail-row"><div class="label">Category</div><div class="value" id="dCategory">-</div></div>
+            <div class="detail-row"><div class="label">Summary</div><div class="value" id="dSummary">-</div></div>
+            <div class="detail-row"><div class="label">Status</div><div class="value" id="dStatus">-</div></div>
+            <div class="detail-row"><div class="label">Priority</div><div class="value" id="dPriority">-</div></div>
+            <div class="detail-row"><div class="label">Last Updated</div><div class="value" id="dUpdated">-</div></div>
+
+            <div class="chat-box">
+              <div class="chat-intro">
+                📞 BigBasket-style Support Chat: Click on a question to get an answer, then click on the next question in the response to continue the conversation hierarchically.
+              </div>
+              
+              <strong>Live Chat</strong>
+              <div class="messages" id="messages"></div>
+              
+              <div class="action-row">
+                <button class="btn-secondary" onclick="markResolved()">Mark Resolved</button>
+                <button class="btn-danger" onclick="closeTicket()">Close Ticket</button>
+                <button onclick="reopenTicket()">Reopen Ticket</button>
+              </div>
+
+              <div class="helper">A ticket should usually be marked Resolved first, then Closed after final confirmation.</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentDashboard = 'user';
+
+    // BigBasket-style hierarchical support questions and answers
+    const supportFlow = {
+      'start': {
+        question: 'What is your issue?',
+        options: [
+          { id: 'booking', text: 'Booking Issue' },
+          { id: 'payment', text: 'Payment/Refund Issue' },
+          { id: 'vehicle', text: 'Vehicle Issue' },
+          { id: 'account', text: 'Account/Login Issue' }
+        ]
+      },
+      'booking': {
+        question: 'Booking Issue - What\'s the problem?',
+        options: [
+          { id: 'no_vehicle', text: 'Vehicle not received at pickup' },
+          { id: 'late', text: 'Booking delayed/late' },
+          { id: 'cancel', text: 'Need to cancel booking' },
+          { id: 'modify', text: 'Want to modify booking' }
+        ]
+      },
+      'no_vehicle': {
+        question: 'Vehicle not received - Action taken?',
+        options: [
+          { id: 'called_vendor', text: 'Called vendor already' },
+          { id: 'not_called', text: 'Haven\'t called yet' },
+          { id: 'location_wrong', text: 'Wrong pickup location' }
+        ]
+      },
+      'called_vendor': {
+        question: 'Great! We\'ll contact vendor now. What\'s your preferred resolution?',
+        options: [
+          { id: 'another_vehicle', text: 'Get another vehicle' },
+          { id: 'refund', text: 'Cancel and get refund' },
+          { id: 'wait', text: 'Wait for current vehicle' }
+        ]
+      },
+      'another_vehicle': {
+        question: '✅ Resolved: We\'ll arrange another vehicle within 2 hours. Ticket will be closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'refund': {
+        question: '✅ Resolved: Refund will be processed in 3-5 days. Ticket closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'wait': {
+        question: '⏳ We\'ll wait 30 mins for vendor. Update will be sent. Ticket remains open.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'payment': {
+        question: 'Payment/Refund Issue - What\'s wrong?',
+        options: [
+          { id: 'payment_pending', text: 'Payment not received' },
+          { id: 'refund_pending', text: 'Refund not received' },
+          { id: 'double_charge', text: 'Double charged' }
+        ]
+      },
+      'refund_pending': {
+        question: 'Refund pending - When did you cancel?',
+        options: [
+          { id: 'within_24h', text: 'Within 24 hours' },
+          { id: 'after_24h', text: 'After 24 hours' },
+          { id: 'unknown', text: 'Don\'t remember' }
+        ]
+      },
+      'within_24h': {
+        question: '✅ 100% refund will be processed in 3-5 business days. Ticket closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'after_24h': {
+        question: '50% refund will be processed. Rest 50% is cancellation fee. Ticket closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'vehicle': {
+        question: 'Vehicle Issue - What\'s the problem?',
+        options: [
+          { id: 'damage', text: 'Vehicle damaged' },
+          { id: 'not_working', text: 'Vehicle not working' },
+          { id: 'different', text: 'Different vehicle given' }
+        ]
+      },
+      'damage': {
+        question: 'Damage reported - Is car drivable?',
+        options: [
+          { id: 'drivable', text: 'Yes, still drivable' },
+          { id: 'not_drivable', text: 'No, not drivable' }
+        ]
+      },
+      'drivable': {
+        question: '📸 Please share photos. We\'ll assess damage cost. Continue booking or exchange?',
+        options: [
+          { id: 'continue_booking', text: 'Continue booking' },
+          { id: 'exchange', text: 'Exchange vehicle' }
+        ]
+      },
+      'continue_booking': {
+        question: '✅ Booking continues. Damage cost will be assessed later. Ticket closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'exchange': {
+        question: '✅ Vehicle exchanged within 1 hour. Ticket closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'account': {
+        question: 'Account/Login Issue - What\'s wrong?',
+        options: [
+          { id: 'cant_login', text: 'Can\'t login' },
+          { id: 'forgot_password', text: 'Forgot password' },
+          { id: 'update_info', text: 'Update profile info' }
+        ]
+      },
+      'cant_login': {
+        question: 'Can\'t login - Try these steps:',
+        options: [
+          { id: 'reset_pw', text: 'Reset password' },
+          { id: 'check_email', text: 'Check email/spam' },
+          { id: 'call_support', text: 'Call support' }
+        ]
+      },
+      'reset_pw': {
+        question: '✅ Password reset link sent to your email. Check inbox/spam. Ticket closed.',
+        options: [
+          { id: 'end', text: 'End conversation' }
+        ]
+      },
+      'end': {
+        question: '🎉 Conversation ended. Ticket marked as Resolved. Thank you!',
+        options: []
+      }
+    };
+
+    const tickets = [
+      {
+        id: 'TKT-1001',
+        dashboard: 'user',
+        raisedBy: 'Aman Verma',
+        role: 'User',
+        userId: 'USR-4521',
+        bookingId: 'BK-4521',
+        category: 'Current booking issue',
+        summary: 'Vehicle not received at pickup point',
+        status: 'New',
+        priority: 'High',
+        updated: '2 min ago',
+        details: 'User says the vehicle is not available at the pickup location.',
+        messages: [
+          { type: 'system', question: 'What is your issue?', options: ['booking', 'payment', 'vehicle', 'account'] },
+          { type: 'user', text: 'Booking Issue', optionId: 'booking', time: '10:12 AM' },
+          { type: 'system', question: 'Booking Issue - Which booking do you need help with?', options: ['BK-4521', 'BK-4522', 'BK-4523', 'BK-4524','BK-4525', 'Show All Bookings'] },
+          { type: 'user', text: 'BK-4521', optionId: 'no_vehicle', time: '10:13 AM' },
+          { type: 'system', question: 'What is The issue?', options: ['Vehicle not received', 'Vendor not reachable', 'cancellation'] },
+          { type: 'user', text: 'Vehicle not received', optionId: 'called_vendor', time: '10:14 AM' },
+          { type: 'user', text: 'Vehicle not received', optionId: 'called_vendor', time: '10:14 AM' },
+          { type: 'system', question: 'Sorry for the inconvenience, We\'ll contact vendor now. What\'s your preferred resolution?', options: ['another_vehicle', 'refund', 'wait'] },
+          { type: 'user', text: 'Get another vehicle', optionId: 'another_vehicle', time: '10:15 AM' },
+          { type: 'system', question: '✅ Resolved: We\'ll arrange another vehicle within 2 hours. Ticket will be closed.', options: ['end'] },
+          { type: 'user', text: 'Thank you!', optionId: 'end', time: '10:16 AM' }
+        ]
+      },
+      {
+        id: 'TKT-1002',
+        dashboard: 'user',
+        raisedBy: 'Neha Singh',
+        role: 'User',
+        userId: 'USR-4522',
+        bookingId: 'BK-4523',
+        category: 'Refund issue',
+        summary: 'Refund not received after cancellation',
+        status: 'In Progress',
+        priority: 'Medium',
+        updated: '15 min ago',
+        details: 'User needs refund status update.',
+        messages: [
+          { type: 'system', question: 'What is your issue?', options: ['booking', 'payment', 'vehicle', 'account'] },
+          { type: 'user', text: 'Payment/Refund Issue', optionId: 'payment', time: '09:45 AM' },
+          { type: 'system', question: 'Payment/Refund Issue - What\'s wrong?', options: ['payment_pending', 'refund_pending', 'double_charge'] },
+          { type: 'user', text: 'Refund not received', optionId: 'refund_pending', time: '09:46 AM' },
+          { type: 'system', question: 'Refund pending - When did you cancel?', options: ['within_24h', 'after_24h', 'unknown'] },
+          { type: 'user', text: 'Within 24 hours', optionId: 'within_24h', time: '09:47 AM' },
+          { type: 'system', question: '✅ 100% refund will be processed in 3-5 business days. Ticket closed.', options: ['end'] },
+          { type: 'user', text: 'Thank you!', optionId: 'end', time: '09:48 AM' }
+        ]
+      },
+      {
+        id: 'TKT-2001',
+        dashboard: 'vendor',
+        raisedBy: 'Prashant Motors',
+        role: 'Vendor',
+        userId: 'VND-8801',
+        bookingId: 'BK-8801',
+        category: 'Vendor issue',
+        summary: 'Booking marked completed but payment pending',
+        status: 'Waiting for User',
+        priority: 'High',
+        updated: '5 min ago',
+        details: 'Vendor wants clarification on payout delay.',
+        messages: [
+          { type: 'system', question: 'What is your issue?', options: ['booking', 'payment', 'vehicle', 'account'] },
+          { type: 'user', text: 'Payment/Refund Issue', optionId: 'payment', time: '11:00 AM' },
+          { type: 'system', question: 'Payment/Refund Issue - What\'s wrong?', options: ['payment_pending', 'refund_pending', 'double_charge'] },
+          { type: 'user', text: 'Payment not received', optionId: 'payment_pending', time: '11:01 AM' }
+        ]
+      }
+    ];
+
+    let selectedTicket = tickets[0];
+
+    function statusClass(status){
+      if(status === 'New') return 'badge b-new';
+      if(status === 'Open') return 'badge b-open';
+      if(status === 'In Progress' || status.includes('Waiting')) return 'badge b-progress';
+      if(status === 'Resolved') return 'badge b-resolved';
+      return 'badge b-closed';
+    }
+
+    function renderStats(filtered){
+      document.getElementById('totalTickets').textContent = filtered.length;
+      document.getElementById('newTickets').textContent = filtered.filter(t => t.status === 'New').length;
+      document.getElementById('progressTickets').textContent = filtered.filter(t => t.status === 'In Progress' || t.status.includes('Waiting')).length;
+      document.getElementById('resolvedTickets').textContent = filtered.filter(t => t.status === 'Resolved').length;
+    }
+
+    function getFilteredTickets(){
+      const q = document.getElementById('searchBox').value.toLowerCase();
+      const status = document.getElementById('filterStatus').value;
+      const issue = document.getElementById('issueTypeFilter').value;
+
+      return tickets.filter(t => {
+        const matchesDashboard = t.dashboard === currentDashboard;
+        const matchesSearch = [t.id, t.raisedBy, t.bookingId, t.summary, t.category, t.status].join(' ').toLowerCase().includes(q);
+        const matchesStatus = !status || t.status === status;
+        const matchesIssue = !issue || t.category === issue;
+        return matchesDashboard && matchesSearch && matchesStatus && matchesIssue;
+      });
+    }
+
+    function renderTable(){
+      const filtered = getFilteredTickets();
+      const body = document.getElementById('ticketBody');
+      body.innerHTML = '';
+
+      if(filtered.length === 0){
+        body.innerHTML = '<tr><td colspan="6" style="padding:18px; color:#6b7280;">No tickets found.</td></tr>';
+        renderStats(filtered);
+        return;
+      }
+
+      filtered.forEach(ticket => {
+        const row = document.createElement('tr');
+        row.onclick = () => selectTicket(ticket.id);
+        row.innerHTML = `
+          <td><strong>${ticket.id}</strong></td>
+          <td><a href="user-profile.html?id=${ticket.userId}" target="_blank" class="${ticket.role === 'User' ? 'type-user' : 'type-vendor'}">${ticket.raisedBy}</a><div style="font-size:12px;color:#6b7280;">${ticket.role}</div></td>
+          <td><a href="booking-details.html?id=${ticket.bookingId}" target="_blank">${ticket.bookingId}</a></td>
+          <td>${ticket.summary}<div style="font-size:12px;color:#6b7280;">${ticket.category}</div></td>
+          <td><span class="${statusClass(ticket.status)}">${ticket.status}</span></td>
+          <td>${ticket.priority}</td>
+        `;
+        body.appendChild(row);
+      });
+
+      renderStats(filtered);
+      if (!filtered.some(t => t.id === selectedTicket.id)) {
+        if(filtered.length > 0) selectTicket(filtered[0].id);
+      }
+    }
+
+    function selectTicket(id){
+      selectedTicket = tickets.find(t => t.id === id);
+      document.getElementById('dTicket').textContent = selectedTicket.id;
+      document.getElementById('dRaisedBy').innerHTML = `<a href="user-profile.html?id=${selectedTicket.userId}" target="_blank">${selectedTicket.raisedBy}</a> (${selectedTicket.role})`;
+      document.getElementById('dBooking').innerHTML = `<a href="booking-details.html?id=${selectedTicket.bookingId}" target="_blank">${selectedTicket.bookingId}</a>`;
+      document.getElementById('dCategory').textContent = selectedTicket.category;
+      document.getElementById('dSummary').textContent = selectedTicket.details;
+      document.getElementById('dStatus').textContent = selectedTicket.status;
+      document.getElementById('dPriority').textContent = selectedTicket.priority;
+      document.getElementById('dUpdated').textContent = selectedTicket.updated;
+      document.getElementById('detailSubtitle').textContent = selectedTicket.summary;
+      renderMessages();
+    }
+
+    function renderMessages(){
+      const box = document.getElementById('messages');
+      box.innerHTML = '';
+      
+      selectedTicket.messages.forEach(m => {
+        const div = document.createElement('div');
+        
+        if(m.type === 'system'){
+          div.className = 'msg agent';
+          div.innerHTML = `<div class="msg-question">${m.question}</div>`;
+          
+          if(m.options && m.options.length > 0){
+            m.options.forEach(optId => {
+              const opt = findOptionById(m.options, optId);
+              if(opt){
+                const btn = document.createElement('span');
+                btn.className = 'msg-option';
+                btn.textContent = opt.text;
+                btn.onclick = () => handleOptionClick(selectedTicket, optId);
+                div.appendChild(btn);
+              }
+            });
+          }
+        } else {
+          div.className = 'msg user';
+          div.innerHTML = `${m.text}<div class="msg-meta">${m.time}</div>`;
+        }
+        
+        box.appendChild(div);
+      });
+      
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function findOptionById(optionsArray, optId){
+      for(const opt of optionsArray){
+        if(typeof opt === 'string' && opt === optId) return { id: opt, text: opt };
+        if(typeof opt === 'object' && opt.id === optId) return opt;
+      }
+      return null;
+    }
+
+    function handleOptionClick(ticket, optionId){
+      const userTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      
+      // Add user's selection
+      const selectedOption = findOptionById(
+        ticket.messages[ticket.messages.length - 1].options,
+        optionId
+      );
+      
+      ticket.messages.push({
+        type: 'user',
+        text: selectedOption?.text || optionId,
+        optionId: optionId,
+        time: userTime
+      });
+
+      // Get system response
+      const response = supportFlow[optionId];
+      if(response){
+        const agentTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        
+        ticket.messages.push({
+          type: 'system',
+          question: response.question,
+          options: response.options,
+          time: agentTime
+        });
+
+        // Auto-mark as In Progress if New
+        if(ticket.status === 'New'){
+          ticket.status = 'In Progress';
+        }
+        
+        ticket.updated = 'Just now';
+      }
+
+      renderTable();
+      selectTicket(ticket.id);
+    }
+
+    function markResolved(){
+      if(!selectedTicket) return;
+      selectedTicket.status = 'Resolved';
+      selectedTicket.updated = 'Just now';
+      selectedTicket.messages.push({
+        type: 'system',
+        question: '✅ Ticket marked as Resolved. Thank you for using YoursCarr support!',
+        options: [],
+        time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+      });
+      renderTable();
+      selectTicket(selectedTicket.id);
+    }
+
+    function closeTicket(){
+      if(!selectedTicket) return;
+      if(selectedTicket.status !== 'Resolved'){
+        alert('Please mark the ticket as Resolved first, then Close it.');
+        return;
+      }
+      selectedTicket.status = 'Closed';
+      selectedTicket.updated = 'Just now';
+      selectedTicket.messages.push({
+        type: 'system',
+        question: '🎉 Ticket has been closed after resolution. Thank you!',
+        options: [],
+        time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+      });
+      renderTable();
+      selectTicket(selectedTicket.id);
+    }
+
+    function reopenTicket(){
+      if(!selectedTicket) return;
+      selectedTicket.status = 'Open';
+      selectedTicket.updated = 'Just now';
+      renderTable();
+      selectTicket(selectedTicket.id);
+    }
+
+    function switchDashboard(type){
+      currentDashboard = type;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item')[type === 'user' ? 0 : 1].classList.add('active');
+      document.getElementById('dashboardName').textContent = type === 'user' ? 'User Ticket Dashboard' : 'Vendor Ticket Dashboard';
+      renderTable();
+    }
+
+    function addDemoTicket(){
+      const id = 'TKT-' + Math.floor(1000 + Math.random() * 9000);
+      const dashboard = currentDashboard;
+      const isUser = dashboard === 'user';
+      const newTicket = {
+        id,
+        dashboard,
+        raisedBy: isUser ? 'New User ' + Math.floor(100 + Math.random() * 900) : 'New Vendor ' + Math.floor(100 + Math.random() * 900),
+        role: isUser ? 'User' : 'Vendor',
+        userId: isUser ? 'USR-' + Math.floor(1000 + Math.random() * 9000) : 'VND-' + Math.floor(1000 + Math.random() * 9000),
+        bookingId: 'BK-' + Math.floor(1000 + Math.random() * 9000),
+        category: isUser ? 'Current booking issue' : 'Vendor issue',
+        summary: isUser ? 'Need help with booking' : 'Need help with vendor dashboard',
+        status: 'New',
+        priority: 'High',
+        updated: 'Just now',
+        details: 'This is a demo ticket added from the interface.',
+        messages: [
+          { type: 'system', question: 'What is your issue?', options: ['booking', 'payment', 'vehicle', 'account'] }
+        ]
+      };
+      tickets.unshift(newTicket);
+      renderTable();
+      selectTicket(id);
+    }
+
+    renderTable();
+    if(tickets.length > 0) selectTicket(selectedTicket.id);
+  </script>
+</body>
+</html>
